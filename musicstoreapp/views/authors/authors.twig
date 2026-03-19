@@ -1,0 +1,18 @@
+{% extends "layout.twig" %}
+{% block title %} Autores {% endblock %}
+{% block main_container %}
+<h2>Autores</h2>
+<div class="row">
+ {% for author in authors %}
+ <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+ <div class="panel panel-default">
+ <div class="panel-body">
+ <div><strong>Nombre:</strong> {{ author.name }}</div>
+ <div><strong>Grupo:</strong> {{ author.group }}</div>
+ <div><strong>Rol:</strong> {{ author.rol }}</div>
+ </div>
+ </div>
+ </div>
+ {% endfor %}
+</div>
+{% endblock %}
