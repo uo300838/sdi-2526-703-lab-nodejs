@@ -9,7 +9,6 @@ var usersRouter = require('./routes/users');
 
 
 var app = express();
-require("./routes/songs.js")(app);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,6 +19,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+require("./routes/songs.js")(app);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
