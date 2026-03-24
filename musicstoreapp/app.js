@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const { MongoClient } = require('mongodb');
 
 
 var indexRouter = require('./routes/index');
@@ -10,6 +11,8 @@ var usersRouter = require('./routes/users');
 
 
 var app = express();
+const connectionStrings = 'mongodb+srv://admin:sdi@musicstoreapp.9du5exm.mongodb.net/?appName=musicstoreapp';
+const dbClient = new MongoClient(connectionStrings);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,8 +23,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('connectionStrings', connectionStrings);
 
-require("./routes/songs.js")(app);
+require("./routes/songs.js")(app, dbClient);
 require("./routes/authors.js")(app);
 
 app.use('/', indexRouter);

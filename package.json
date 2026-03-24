@@ -20,6 +20,7 @@
   "homepage": "https://github.com/uo300838/sdi-2526-703-lab-nodejs#readme",
   "dependencies": {
     "body-parser": "^2.2.2",
-    "express": "^4.18.3"
+    "express": "^4.18.3",
+    "mongodb": "^6.5.0"
   }
 }
