@@ -13,6 +13,8 @@ var usersRouter = require('./routes/users');
 var app = express();
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstoreapp.9du5exm.mongodb.net/?appName=musicstoreapp';
 const dbClient = new MongoClient(connectionStrings);
+let songsRepository = require("./repositories/songsRepository.js");
+songsRepository.init(app, dbClient);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,7 +27,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('connectionStrings', connectionStrings);
 
-require("./routes/songs.js")(app, dbClient);
+require("./routes/songs.js")(app, songsRepository);
 require("./routes/authors.js")(app);
 
 app.use('/', indexRouter);

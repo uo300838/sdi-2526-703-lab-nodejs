@@ -1,4 +1,4 @@
-module.exports = function (app, dbClient) {
+module.exports = function (app, songsRepository) {
     app.get("/songs", function (req, res) {
         let songs = [{
             "title": "Blank space",
@@ -44,16 +44,13 @@ module.exports = function (app, dbClient) {
             kind: req.body.kind,
             price: req.body.price
         };
-
-        dbClient.connect()
-            .then(() => {
-                const database = dbClient.db("musicStore");
-                const songsCollection = database.collection("songs");
-                return songsCollection.insertOne(song);
-            })
-            .then(result => res.send("Cancion anadida id: " + result.insertedId))
-            .then(() => dbClient.close())
-            .catch(err => res.send("Error de conexion: " + err));
+        songsRepository.insertSong(song, function (result) {
+            if (result.songId !== null && result.songId !== undefined) {
+                res.send("Agregada la cancion ID: " + result.songId);
+            } else {
+                res.send("Error al insertar cancion " + result.error);
+            }
+        });
     });
 
     app.get("/promo*", function (req, res) {
