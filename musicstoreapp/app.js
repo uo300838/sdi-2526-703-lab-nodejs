@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+let fileUpload = require('express-fileupload');
 const { MongoClient } = require('mongodb');
 
 
@@ -23,9 +24,14 @@ app.set('view engine', 'twig');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+  createParentPath: true
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('connectionStrings', connectionStrings);
+app.set('uploadPath', __dirname);
 
 require("./routes/songs.js")(app, songsRepository);
 require("./routes/authors.js")(app);

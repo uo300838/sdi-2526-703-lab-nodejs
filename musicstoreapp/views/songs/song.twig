@@ -1,0 +1,19 @@
+{% extends "layout.twig" %}
+
+{% block title %} Detalles de cancion {% endblock %}
+
+{% block main_container %}
+    <div class="row">
+        <div class="media col-xs-10">
+            <div class="media-left media-middle">
+                <img class="media-object" src="/covers/{{ song._id }}.png">
+            </div>
+            <div class="media-body">
+                <h2>{{ song.title }}</h2>
+                <p>{{ song.author }}</p>
+                <p>{{ song.kind }}</p>
+                <button type="button" class="btn btn-primary pull-right">{{ song.price }} EUR</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
