@@ -1,6 +1,7 @@
 module.exports = function (app) {
     app.get('/authors/add', function (req, res) {
-        res.render('authors/add.twig');
+        const roles = ['cantante', 'trompetista', 'violinista', 'saxofonista', 'pianista'];
+        res.render('authors/add.twig', { roles: roles });
     });
 
     app.post('/authors/add', function (req, res) {
