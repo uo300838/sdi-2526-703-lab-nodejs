@@ -10,6 +10,8 @@ const { MongoClient } = require('mongodb');
 
 
 var indexRouter = require('./routes/index');
+const userSessionRouter = require('./routes/userSessionRouter');
+const userAudiosRouter = require('./routes/userAudiosRouter');
 
 
 var app = express();
@@ -37,6 +39,12 @@ app.use(fileUpload({
   createParentPath: true
 }));
 app.use(cookieParser());
+
+app.use("/songs/add", userSessionRouter);
+app.use("/publications", userSessionRouter);
+app.use("/audios/", userAudiosRouter);
+app.use("/shop/", userSessionRouter);
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('connectionStrings', connectionStrings);
 app.set('uploadPath', __dirname);
