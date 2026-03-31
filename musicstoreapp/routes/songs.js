@@ -116,6 +116,48 @@ module.exports = function (app, songsRepository) {
         });
     });
 
+    app.post('/songs/buy/:id', function (req, res) {
+        let songId = new ObjectId(req.params.id);
+        let shop = {
+            user: req.session.user,
+            song_id: songId
+        };
+        songsRepository.buySong(shop).then(result => {
+            if (result.insertedId === null || typeof (result.insertedId) === "undefined") {
+                res.redirect("/shop?message=" +
+                    encodeURIComponent("Se ha producido un error al comprar la canción") +
+                    "&messageType=alert-danger");
+            } else {
+                res.redirect("/purchases");
+            }
+        }).catch(() => {
+            res.redirect("/shop?message=" +
+                encodeURIComponent("Se ha producido un error al comprar la canción") +
+                "&messageType=alert-danger");
+        });
+    });
+
+    app.get('/purchases', function (req, res) {
+        let filter = {user: req.session.user};
+        let options = {projection: {_id: 0, song_id: 1}};
+        songsRepository.getPurchases(filter, options).then(purchasedIds => {
+            const purchasedSongs = purchasedIds.map(song => song.song_id);
+            let songsFilter = {"_id": {$in: purchasedSongs}};
+            let songsOptions = {sort: {title: 1}};
+            songsRepository.getSongs(songsFilter, songsOptions).then(songs => {
+                res.render("purchase.twig", {songs: songs});
+            }).catch(() => {
+                res.redirect("/shop?message=" +
+                    encodeURIComponent("Se ha producido un error al listar las publicaciones del usuario") +
+                    "&messageType=alert-danger");
+            });
+        }).catch(() => {
+            res.redirect("/shop?message=" +
+                encodeURIComponent("Se ha producido un error al listar las canciones del usuario") +
+                "&messageType=alert-danger");
+        });
+    });
+
     app.get("/songs/:kind/:id", function (req, res) {
         let response = "id: " + req.params.id + "<br>"
             + "Tipo de musica: " + req.params.kind;
