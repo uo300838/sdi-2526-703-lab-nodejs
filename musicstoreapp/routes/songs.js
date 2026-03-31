@@ -74,12 +74,16 @@ module.exports = function (app, songsRepository) {
         let filter = {_id: new ObjectId(req.params.id)};
         songsRepository.deleteSong(filter, {}).then(result => {
             if (result === null || result.deletedCount === 0) {
-                res.send("No se ha podido eliminar el registro");
+                res.redirect("/publications?message=" + encodeURIComponent("No se ha podido eliminar el registro") +
+                    "&messageType=alert-danger");
             } else {
-                res.redirect("/publications");
+                res.redirect("/publications?message=" + encodeURIComponent("Canción eliminada correctamente") +
+                    "&messageType=alert-success");
             }
         }).catch(error => {
-            res.send("Se ha producido un error al intentar eliminar la canciÃ³n: " + error);
+            res.redirect("/publications?message=" +
+                encodeURIComponent("Se ha producido un error al intentar eliminar la canción") +
+                "&messageType=alert-danger");
         });
     });
 
@@ -96,13 +100,19 @@ module.exports = function (app, songsRepository) {
         songsRepository.updateSong(song, filter, options).then(() => {
             step1UpdateCover(req.files, songId, function (result) {
                 if (result == null) {
-                    res.send("Error al actualizar la portada o el audio de la canción");
+                    res.redirect("/publications?message=" +
+                        encodeURIComponent("Error al actualizar la portada o el audio de la canción") +
+                        "&messageType=alert-danger");
                 } else {
-                    res.redirect("/publications");
+                    res.redirect("/publications?message=" +
+                        encodeURIComponent("Se ha modificado el registro correctamente") +
+                        "&messageType=alert-success");
                 }
             });
         }).catch(error => {
-            res.send("Se ha producido un error al modificar la canción " + error);
+            res.redirect("/publications?message=" +
+                encodeURIComponent("Se ha producido un error al modificar la canción") +
+                "&messageType=alert-danger");
         });
     });
 
@@ -128,18 +138,30 @@ module.exports = function (app, songsRepository) {
                             if (req.files.audio != null) {
                                 let audio = req.files.audio;
                                 audio.mv(app.get("uploadPath") + "/public/audios/" + result.songId + ".mp3")
-                                    .then(() => res.redirect("/publications"))
-                                    .catch(() => res.send("Error al subir el audio de la cancion"));
+                                    .then(() => res.redirect("/publications?message=" +
+                                        encodeURIComponent("Canción agregada correctamente") +
+                                        "&messageType=alert-success"))
+                                    .catch(() => res.redirect("/songs/add?message=" +
+                                        encodeURIComponent("Error al subir el audio de la canción") +
+                                        "&messageType=alert-danger"));
                             } else {
-                                res.redirect("/publications");
+                                res.redirect("/publications?message=" +
+                                    encodeURIComponent("Canción agregada correctamente") +
+                                    "&messageType=alert-success");
                             }
                         })
-                        .catch(() => res.send("Error al subir la portada de la cancion"));
+                        .catch(() => res.redirect("/songs/add?message=" +
+                            encodeURIComponent("Error al subir la portada de la canción") +
+                            "&messageType=alert-danger"));
                 } else {
-                    res.redirect("/publications");
+                    res.redirect("/publications?message=" +
+                        encodeURIComponent("Canción agregada correctamente") +
+                        "&messageType=alert-success");
                 }
             } else {
-                res.send("Error al insertar cancion " + result.error);
+                res.redirect("/songs/add?message=" +
+                    encodeURIComponent("Error al insertar canción") +
+                    "&messageType=alert-danger");
             }
         });
     });
