@@ -12,6 +12,7 @@ const { MongoClient } = require('mongodb');
 var indexRouter = require('./routes/index');
 const userSessionRouter = require('./routes/userSessionRouter');
 const userAudiosRouter = require('./routes/userAudiosRouter');
+const userAuthorRouter = require('./routes/userAuthorRouter');
 
 
 var app = express();
@@ -47,6 +48,8 @@ app.use("/publications", userSessionRouter);
 app.use("/audios/", userAudiosRouter);
 app.use("/shop/", userSessionRouter);
 app.use("/songs/favorites", userSessionRouter);
+app.use("/songs/edit", userAuthorRouter);
+app.use("/songs/delete", userAuthorRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('connectionStrings', connectionStrings);
