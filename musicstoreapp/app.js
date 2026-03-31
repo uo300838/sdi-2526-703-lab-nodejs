@@ -54,10 +54,10 @@ app.set('uploadPath', __dirname);
 app.set('clave', 'abcdefg');
 app.set('crypto', crypto);
 
+require("./routes/songs/favorites.js")(app, songsRepository, favoriteSongsRepository);
 require("./routes/songs.js")(app, songsRepository);
 require("./routes/authors.js")(app);
 require("./routes/users.js")(app, usersRepository);
-require("./routes/songs/favorites.js")(app, songsRepository, favoriteSongsRepository);
 
 app.use('/', indexRouter);
 
