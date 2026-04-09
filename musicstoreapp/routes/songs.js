@@ -3,9 +3,9 @@ module.exports = function (app, songsRepository) {
 
     app.get("/shop", function (req, res) {
         let filter = {};
-        let options = { sort: { title: 1 } };
+        let options = {sort: {title: 1}};
         if (req.query.search != null && typeof (req.query.search) != "undefined" && req.query.search != "") {
-            filter = { "title": { $regex: ".*" + req.query.search + ".*" } };
+            filter = {"title": {$regex: ".*" + req.query.search + ".*"}};
         }
         let page = parseInt(req.query.page);
         if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
@@ -70,22 +70,53 @@ module.exports = function (app, songsRepository) {
         res.render("songs/add.twig");
     });
 
-    app.get("/songs/:id", function (req, res) {
-        let filter = {_id: new ObjectId(req.params.id)};
-        let options = {};
-        songsRepository.findSong(filter, options).then(song => {
-            res.render("songs/song.twig", {song: song});
-        }).catch(error => {
-            res.send("Se ha producido un error al buscar la canción " + error)
-        });
+    app.get("/songs/:id", async function (req, res) {
+        let songId;
+        try {
+            songId = new ObjectId(req.params.id);
+        } catch (e) {
+            return res.redirect("/shop?message=" +
+                encodeURIComponent("Identificador de canción inválido") +
+                "&messageType=alert-danger");
+        }
+
+        try {
+            let song = await songsRepository.findSong({_id: songId}, {});
+            if (!song) {
+                return res.redirect("/shop?message=" +
+                    encodeURIComponent("La canción no existe") +
+                    "&messageType=alert-danger");
+            }
+
+            let user = req.session.user;
+            let isAuthor = (user != null && song.author === user);
+
+            let hasPurchased = false;
+            if (user != null) {
+                let purchases = await songsRepository.getPurchases(
+                    {user: user, song_id: song._id},
+                    {projection: {_id: 1}}
+                );
+                hasPurchased = purchases.length > 0;
+            }
+
+            res.render("songs/song.twig", {
+                song: song,
+                isAuthor: isAuthor,
+                hasPurchased: hasPurchased
+            });
+        } catch (error) {
+            res.send("Se ha producido un error al buscar la canciÃ³n " + error);
+        }
     });
+
 
     app.get('/songs/edit/:id', function (req, res) {
         let filter = {_id: new ObjectId(req.params.id)};
         songsRepository.findSong(filter, {}).then(song => {
             res.render("songs/edit.twig", {song: song});
         }).catch(error => {
-            res.send("Se ha producido un error al recuperar la canción " + error);
+            res.send("Se ha producido un error al recuperar la canciÃ³n " + error);
         });
     });
 
@@ -96,12 +127,12 @@ module.exports = function (app, songsRepository) {
                 res.redirect("/publications?message=" + encodeURIComponent("No se ha podido eliminar el registro") +
                     "&messageType=alert-danger");
             } else {
-                res.redirect("/publications?message=" + encodeURIComponent("Canción eliminada correctamente") +
+                res.redirect("/publications?message=" + encodeURIComponent("CanciÃ³n eliminada correctamente") +
                     "&messageType=alert-success");
             }
         }).catch(error => {
             res.redirect("/publications?message=" +
-                encodeURIComponent("Se ha producido un error al intentar eliminar la canción") +
+                encodeURIComponent("Se ha producido un error al intentar eliminar la canciÃ³n") +
                 "&messageType=alert-danger");
         });
     });
@@ -120,7 +151,7 @@ module.exports = function (app, songsRepository) {
             step1UpdateCover(req.files, songId, function (result) {
                 if (result == null) {
                     res.redirect("/publications?message=" +
-                        encodeURIComponent("Error al actualizar la portada o el audio de la canción") +
+                        encodeURIComponent("Error al actualizar la portada o el audio de la canciÃ³n") +
                         "&messageType=alert-danger");
                 } else {
                     res.redirect("/publications?message=" +
@@ -130,30 +161,63 @@ module.exports = function (app, songsRepository) {
             });
         }).catch(error => {
             res.redirect("/publications?message=" +
-                encodeURIComponent("Se ha producido un error al modificar la canción") +
+                encodeURIComponent("Se ha producido un error al modificar la canciÃ³n") +
                 "&messageType=alert-danger");
         });
     });
 
-    app.post('/songs/buy/:id', function (req, res) {
-        let songId = new ObjectId(req.params.id);
-        let shop = {
-            user: req.session.user,
-            song_id: songId
-        };
-        songsRepository.buySong(shop).then(result => {
-            if (result.insertedId === null || typeof (result.insertedId) === "undefined") {
-                res.redirect("/shop?message=" +
-                    encodeURIComponent("Se ha producido un error al comprar la canción") +
-                    "&messageType=alert-danger");
-            } else {
-                res.redirect("/purchases");
-            }
-        }).catch(() => {
-            res.redirect("/shop?message=" +
-                encodeURIComponent("Se ha producido un error al comprar la canción") +
+    app.post('/songs/buy/:id', async function (req, res) {
+        const user = req.session.user;
+        let songId;
+        try {
+            songId = new ObjectId(req.params.id);
+        } catch (e) {
+            return res.redirect("/shop?message=" +
+                encodeURIComponent("Identificador de canción inválido") +
                 "&messageType=alert-danger");
-        });
+        }
+
+        try {
+            const song = await songsRepository.findSong({_id: songId}, {});
+            if (!song) {
+                return res.redirect("/shop?message=" +
+                    encodeURIComponent("La canción no existe") +
+                    "&messageType=alert-danger");
+            }
+
+            if (song.author === user) {
+                return res.redirect("/songs/" + songId + "?message=" +
+                    encodeURIComponent("No puedes comprar una canción de la que eres autor") +
+                    "&messageType=alert-danger");
+            }
+
+            const existingPurchases = await songsRepository.getPurchases(
+                {user: user, song_id: songId},
+                {projection: {_id: 1}}
+            );
+            if (existingPurchases.length > 0) {
+                return res.redirect("/songs/" + songId + "?message=" +
+                    encodeURIComponent("Ya has comprado esta canción") +
+                    "&messageType=alert-danger");
+            }
+
+            const shop = {
+                user: user,
+                song_id: songId
+            };
+            const result = await songsRepository.buySong(shop);
+            if (result.insertedId === null || typeof (result.insertedId) === "undefined") {
+                return res.redirect("/shop?message=" +
+                    encodeURIComponent("Se ha producido un error al comprar la canciÃ³n") +
+                    "&messageType=alert-danger");
+            }
+
+            return res.redirect("/purchases");
+        } catch (error) {
+            return res.redirect("/shop?message=" +
+                encodeURIComponent("Se ha producido un error al comprar la canciÃ³n") +
+                "&messageType=alert-danger");
+        }
     });
 
     app.get('/purchases', function (req, res) {
@@ -200,28 +264,28 @@ module.exports = function (app, songsRepository) {
                                 let audio = req.files.audio;
                                 audio.mv(app.get("uploadPath") + "/public/audios/" + result.songId + ".mp3")
                                     .then(() => res.redirect("/publications?message=" +
-                                        encodeURIComponent("Canción agregada correctamente") +
+                                        encodeURIComponent("CanciÃ³n agregada correctamente") +
                                         "&messageType=alert-success"))
                                     .catch(() => res.redirect("/songs/add?message=" +
-                                        encodeURIComponent("Error al subir el audio de la canción") +
+                                        encodeURIComponent("Error al subir el audio de la canciÃ³n") +
                                         "&messageType=alert-danger"));
                             } else {
                                 res.redirect("/publications?message=" +
-                                    encodeURIComponent("Canción agregada correctamente") +
+                                    encodeURIComponent("CanciÃ³n agregada correctamente") +
                                     "&messageType=alert-success");
                             }
                         })
                         .catch(() => res.redirect("/songs/add?message=" +
-                            encodeURIComponent("Error al subir la portada de la canción") +
+                            encodeURIComponent("Error al subir la portada de la canciÃ³n") +
                             "&messageType=alert-danger"));
                 } else {
                     res.redirect("/publications?message=" +
-                        encodeURIComponent("Canción agregada correctamente") +
+                        encodeURIComponent("CanciÃ³n agregada correctamente") +
                         "&messageType=alert-success");
                 }
             } else {
                 res.redirect("/songs/add?message=" +
-                    encodeURIComponent("Error al insertar canción") +
+                    encodeURIComponent("Error al insertar canciÃ³n") +
                     "&messageType=alert-danger");
             }
         });
@@ -265,3 +329,4 @@ module.exports = function (app, songsRepository) {
         }
     }
 };
+

@@ -12,6 +12,7 @@ module.exports = {
             await this.dbClient.connect();
             const database = this.dbClient.db(this.database);
             const songsCollection = database.collection(this.collectionName);
+
             return await songsCollection.find(filter, options).toArray();
         } catch (error) {
             throw error;
