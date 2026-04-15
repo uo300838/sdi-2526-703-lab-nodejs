@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="/javascripts/cookie.js"></script>
 </head>
 <body>
 
@@ -40,10 +41,30 @@
     $("#main-container").load("widget-songs.html");
   }
 
-  // Carga inicial
-  $("#main-container").load("widget-login.html");
+  let url = new URL(window.location.href);
+  let w = url.searchParams.get("w");
+
+  if (Cookies.get("token") != null) {
+    token = Cookies.get("token");
+  }
+
+  if (w === "login") {
+    $("#main-container").load("widget-login.html");
+  } else if (w === "songs") {
+    if (token != null) {
+      $("#main-container").load("widget-songs.html");
+    } else {
+      $("#main-container").load("widget-login.html");
+    }
+  } else {
+    // Default: songs si hay token, login si no.
+    if (token != null) {
+      $("#main-container").load("widget-songs.html");
+    } else {
+      $("#main-container").load("widget-login.html");
+    }
+  }
 </script>
 
 </body>
 </html>
-
