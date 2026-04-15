@@ -8,6 +8,7 @@ let expressSession = require('express-session');
 let fileUpload = require('express-fileupload');
 const { MongoClient } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const rest = require('request');
 
 
 var indexRouter = require('./routes/index');
@@ -18,6 +19,9 @@ const userTokenRouter = require('./routes/userTokenRouter');
 
 
 var app = express();
+app.set('rest', rest);
+// Token de currencyapi.com (NO hardcodear). Define CURRENCY_API_TOKEN en el entorno.
+app.set('currencyApiToken', process.env.CURRENCY_API_TOKEN || '');
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstoreapp.9du5exm.mongodb.net/?appName=musicstoreapp';
 const dbClient = new MongoClient(connectionStrings);
 let songsRepository = require("./repositories/songsRepository.js");
@@ -83,6 +87,7 @@ app.set('jwt', jwt);
 require("./routes/songs/favorites.js")(app, songsRepository, favoriteSongsRepository);
 require("./routes/songs.js")(app, songsRepository);
 require("./routes/api/songsAPIv1.0.js")(app, songsRepository, usersRepository);
+require("./routes/api/adsAPIv1.0.js")(app);
 require("./routes/authors.js")(app);
 require("./routes/users.js")(app, usersRepository);
 

@@ -100,11 +100,44 @@ module.exports = function (app, songsRepository) {
                 hasPurchased = purchases.length > 0;
             }
 
-            res.render("songs/song.twig", {
-                song: song,
-                isAuthor: isAuthor,
-                hasPurchased: hasPurchased
-            });
+            // Obtener el cambio EUR -> USD (currencyapi.com) y calcular song.usd.
+            // Sustituye MITOKEN por tu token o define CURRENCY_API_TOKEN.
+            const apikey = app.get("currencyApiToken");
+            const rest = app.get("rest");
+            const priceEUR = parseFloat(song.price);
+
+            if (rest && apikey && !Number.isNaN(priceEUR)) {
+                let settings = {
+                    url: "https://api.currencyapi.com/v3/latest?apikey=" + apikey +
+                        "&base_currency=EUR&currencies=USD",
+                    method: "get"
+                };
+
+                rest(settings, function (error, response, body) {
+                    try {
+                        if (!error && response && response.statusCode >= 200 && response.statusCode <= 299) {
+                            let responseObject = JSON.parse(body);
+                            let rateUSD = responseObject.data.USD.value; // USD por 1 EUR
+                            let usdValue = priceEUR * rateUSD;
+                            song.usd = Math.round(usdValue * 100) / 100;
+                        }
+                    } catch (e) {
+                        // Ignorar: renderizamos sin USD
+                    }
+
+                    res.render("songs/song.twig", {
+                        song: song,
+                        isAuthor: isAuthor,
+                        hasPurchased: hasPurchased
+                    });
+                });
+            } else {
+                res.render("songs/song.twig", {
+                    song: song,
+                    isAuthor: isAuthor,
+                    hasPurchased: hasPurchased
+                });
+            }
         } catch (error) {
             res.send("Se ha producido un error al buscar la canciÃ³n " + error);
         }
@@ -329,4 +362,3 @@ module.exports = function (app, songsRepository) {
         }
     }
 };
-
