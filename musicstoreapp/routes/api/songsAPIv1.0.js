@@ -42,6 +42,38 @@ module.exports = function (app, songsRepository, usersRepository) {
   });
 
   // GET /api/v1.0/songs -> lista de canciones
+  /**
+   * @swagger
+   * /api/v1.0/songs:
+   *   get:
+   *     summary: Obtener lista de canciones
+   *     description: Retorna todas las canciones almacenadas en el sistema.
+   *     tags:
+   *       - Songs
+   *     responses:
+   *       200:
+   *         description: Lista de canciones obtenida correctamente.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 songs:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Song'
+   *       500:
+   *         description: Error interno del servidor al recuperar las canciones.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 error:
+   *                   type: string
+   *               example:
+   *                 error: Se ha producido un error al recuperar las canciones.
+   */
   app.get("/api/v1.0/songs", function (req, res) {
     const filter = {};
     const options = {};
@@ -88,6 +120,29 @@ module.exports = function (app, songsRepository, usersRepository) {
 
   // DELETE /api/v1.0/songs/:id -> elimina cancion por id
   // Nota: try/catch para no delegar en el error handler global ante ObjectId invalido
+  /**
+   * @swagger
+   * /api/v1.0/songs/{id}:
+   *   delete:
+   *     summary: Eliminar una cancion
+   *     description: Elimina una cancion del sistema a partir de su identificador.
+   *     tags:
+   *       - Songs
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         description: Identificador unico de la cancion.
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Cancion eliminada correctamente.
+   *       404:
+   *         description: ID invalido o cancion no encontrada.
+   *       500:
+   *         description: Error interno del servidor.
+   */
   app.delete("/api/v1.0/songs/:id", function (req, res) {
     try {
       const songId = new ObjectId(req.params.id);
@@ -118,6 +173,37 @@ module.exports = function (app, songsRepository, usersRepository) {
   });
 
   // POST /api/v1.0/songs -> crea cancion
+  /**
+   * @swagger
+   * /api/v1.0/songs:
+   *   post:
+   *     summary: Crear una nueva cancion
+   *     description: Anade una nueva cancion al sistema.
+   *     tags:
+   *       - Songs
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/SongRequest'
+   *     responses:
+   *       201:
+   *         description: Cancion creada correctamente.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                 _id:
+   *                   type: string
+   *       409:
+   *         description: Conflicto, la cancion ya existe.
+   *       500:
+   *         description: Error interno del servidor.
+   */
   app.post("/api/v1.0/songs", function (req, res) {
     try {
       const song = {
@@ -165,6 +251,37 @@ module.exports = function (app, songsRepository, usersRepository) {
 
   // PUT /api/v1.0/songs/:id -> actualiza (parcialmente) cancion por id
   // Nota: try/catch para no delegar en el error handler global ante ObjectId invalido
+  /**
+   * @swagger
+   * /api/v1.0/songs/{id}:
+   *   put:
+   *     summary: Modificar una cancion
+   *     description: Actualiza los datos de una cancion existente mediante su identificador.
+   *     tags:
+   *       - Songs
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         description: Identificador unico de la cancion.
+   *         schema:
+   *           type: string
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/SongRequest'
+   *     responses:
+   *       200:
+   *         description: Cancion modificada correctamente.
+   *       404:
+   *         description: ID invalido o cancion no encontrada.
+   *       409:
+   *         description: No se ha realizado ninguna modificacion.
+   *       500:
+   *         description: Error interno del servidor.
+   */
   app.put("/api/v1.0/songs/:id", async function (req, res) {
     try {
       let songId;

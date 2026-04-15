@@ -9,6 +9,10 @@ let fileUpload = require('express-fileupload');
 const { MongoClient } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const rest = require('request');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const { Song } = require('./schemas/song.schema');
+const { SongRequest } = require('./schemas/songRequest.schema');
 
 
 var indexRouter = require('./routes/index');
@@ -34,6 +38,37 @@ favoriteSongsRepository.init(app, dbClient);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
+
+// Swagger (documentacion API REST)
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API de la tienda de musica de SDI',
+      version: '1.0.0',
+      description: 'Documentacion interactiva de la API',
+    },
+    components: {
+      schemas: {
+        Song,
+        SongRequest,
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:8081',
+        description: 'Servidor HTTP de pruebas (8081)',
+      },
+      {
+        url: 'https://localhost:4000',
+        description: 'Servidor HTTPS de pruebas (4000)',
+      },
+    ],
+  },
+  apis: [path.join(__dirname, './routes/api/*.js')],
+};
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // CORS (desarrollo): permitir peticiones desde cualquier origen (incluyendo header token).
 app.use(function (req, res, next) {
