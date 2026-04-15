@@ -1,6 +1,46 @@
 const { ObjectId } = require("mongodb");
 
-module.exports = function (app, songsRepository) {
+module.exports = function (app, songsRepository, usersRepository) {
+  // POST /api/v1.0/users/login -> devuelve token JWT si credenciales son validas
+  app.post("/api/v1.0/users/login", async function (req, res) {
+    try {
+      const securePassword = app
+        .get("crypto")
+        .createHmac("sha256", app.get("clave"))
+        .update(req.body.password)
+        .digest("hex");
+
+      const filter = {
+        email: req.body.email,
+        password: securePassword,
+      };
+
+      const user = await usersRepository.findUser(filter, {});
+      if (user == null) {
+        return res.status(401).json({
+          message: "usuario no autorizado",
+          authenticated: false,
+        });
+      }
+
+      const token = app.get("jwt").sign(
+        { user: user.email, time: Date.now() / 1000 },
+        "secreto"
+      );
+
+      return res.status(200).json({
+        message: "usuario autorizado",
+        authenticated: true,
+        token: token,
+      });
+    } catch (e) {
+      return res.status(500).json({
+        message: "Se ha producido un error al verificar credenciales",
+        authenticated: false,
+      });
+    }
+  });
+
   // GET /api/v1.0/songs -> lista de canciones
   app.get("/api/v1.0/songs", function (req, res) {
     const filter = {};
@@ -84,8 +124,7 @@ module.exports = function (app, songsRepository) {
         title: req.body?.title,
         kind: req.body?.kind,
         price: req.body?.price,
-        // Si hay sesion, usamos el usuario autenticado; si no, permitimos author en body
-        author: req.session?.user ?? req.body?.author,
+        author: res.user,
       };
 
       songsRepository.insertSong(song, function (result) {
@@ -140,8 +179,7 @@ module.exports = function (app, songsRepository) {
       const options = { upsert: false };
 
       const song = {
-        // Si hay sesion, usamos el usuario autenticado; si no, permitimos author en body
-        author: req.session?.user ?? req.body?.author,
+        author: res.user,
       };
 
       if (typeof req.body?.title !== "undefined" && req.body?.title !== null) {

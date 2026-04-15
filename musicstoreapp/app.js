@@ -7,12 +7,14 @@ let crypto = require('crypto');
 let expressSession = require('express-session');
 let fileUpload = require('express-fileupload');
 const { MongoClient } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 
 var indexRouter = require('./routes/index');
 const userSessionRouter = require('./routes/userSessionRouter');
 const userAudiosRouter = require('./routes/userAudiosRouter');
 const userAuthorRouter = require('./routes/userAuthorRouter');
+const userTokenRouter = require('./routes/userTokenRouter');
 
 
 var app = express();
@@ -52,16 +54,18 @@ app.use("/shop/", userSessionRouter);
 app.use("/songs/favorites", userSessionRouter);
 app.use("/songs/edit", userAuthorRouter);
 app.use("/songs/delete", userAuthorRouter);
+app.use("/api/v1.0/songs/", userTokenRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('connectionStrings', connectionStrings);
 app.set('uploadPath', __dirname);
 app.set('clave', 'abcdefg');
 app.set('crypto', crypto);
+app.set('jwt', jwt);
 
 require("./routes/songs/favorites.js")(app, songsRepository, favoriteSongsRepository);
 require("./routes/songs.js")(app, songsRepository);
-require("./routes/api/songsAPIv1.0.js")(app, songsRepository);
+require("./routes/api/songsAPIv1.0.js")(app, songsRepository, usersRepository);
 require("./routes/authors.js")(app);
 require("./routes/users.js")(app, usersRepository);
 
@@ -76,6 +80,14 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   console.log("Se ha producido un error " + err);
+
+  // Para la API REST devolvemos JSON en vez de HTML.
+  if (req.path && req.path.startsWith("/api/")) {
+    return res.status(err.status || 500).json({
+      error: err.message,
+    });
+  }
+
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
