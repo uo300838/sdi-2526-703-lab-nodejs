@@ -1,0 +1,41 @@
+{% extends "layout.twig" %}
+{% block title %} Letras - uoMusic {% endblock %}
+
+{% block main_container %}
+  <h2>Buscar letra</h2>
+
+  <form class="form-horizontal" method="get" action="/lyrics">
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="artist">Artista:</label>
+      <div class="col-sm-6">
+        <input type="text" class="form-control" id="artist" name="artist" placeholder="Coldplay" value="{{ artist|default('')|e }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="song">Título:</label>
+      <div class="col-sm-6">
+        <input type="text" class="form-control" id="song" name="song" placeholder="Yellow" value="{{ song|default('')|e }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-6">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </div>
+    </div>
+  </form>
+
+  {% if lyrics is defined %}
+    <hr>
+    <h4>Resultado</h4>
+    <pre style="white-space: pre-wrap;">{{ lyrics|e }}</pre>
+  {% endif %}
+
+  <script>
+    // Marcar pestaña activa
+    $("#myshop").removeClass("active");
+    $("#mylyrics").addClass("active");
+  </script>
+{% endblock %}
+

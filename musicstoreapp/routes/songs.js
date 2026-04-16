@@ -1,5 +1,6 @@
 module.exports = function (app, songsRepository) {
     const {ObjectId} = require("mongodb");
+    const lyricsService = require("../services/lyricsService");
 
     app.get("/shop", function (req, res) {
         let filter = {};
@@ -100,6 +101,10 @@ module.exports = function (app, songsRepository) {
                 hasPurchased = purchases.length > 0;
             }
 
+            // Nueva funcionalidad: obtener letra desde una API REST pública (lyrics.ovh)
+            // Usamos author como artista y title como título.
+            const lyrics = await lyricsService.getLyrics(song.author, song.title);
+
             // Obtener el cambio EUR -> USD (currencyapi.com) y calcular song.usd.
             // Sustituye MITOKEN por tu token o define CURRENCY_API_TOKEN.
             const apikey = app.get("currencyApiToken");
@@ -110,7 +115,8 @@ module.exports = function (app, songsRepository) {
                 let settings = {
                     url: "https://api.currencyapi.com/v3/latest?apikey=" + apikey +
                         "&base_currency=EUR&currencies=USD",
-                    method: "get"
+                    method: "get",
+                    timeout: 8000
                 };
 
                 rest(settings, function (error, response, body) {
@@ -128,14 +134,16 @@ module.exports = function (app, songsRepository) {
                     res.render("songs/song.twig", {
                         song: song,
                         isAuthor: isAuthor,
-                        hasPurchased: hasPurchased
+                        hasPurchased: hasPurchased,
+                        lyrics: lyrics
                     });
                 });
             } else {
                 res.render("songs/song.twig", {
                     song: song,
                     isAuthor: isAuthor,
-                    hasPurchased: hasPurchased
+                    hasPurchased: hasPurchased,
+                    lyrics: lyrics
                 });
             }
         } catch (error) {

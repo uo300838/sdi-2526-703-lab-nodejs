@@ -123,6 +123,8 @@ require("./routes/songs/favorites.js")(app, songsRepository, favoriteSongsReposi
 require("./routes/songs.js")(app, songsRepository);
 require("./routes/api/songsAPIv1.0.js")(app, songsRepository, usersRepository);
 require("./routes/api/adsAPIv1.0.js")(app);
+require("./routes/api/lyricsAPIv1.0.js")(app);
+require("./routes/lyrics.js")(app);
 require("./routes/authors.js")(app);
 require("./routes/users.js")(app, usersRepository);
 

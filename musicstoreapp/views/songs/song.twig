@@ -26,6 +26,12 @@
                         </button>
                     </form>
                 {% endif %}
+
+                {% if lyrics is defined %}
+                    <hr>
+                    <h4>Letra</h4>
+                    <pre style="white-space: pre-wrap;">{{ lyrics|e }}</pre>
+                {% endif %}
             </div>
         </div>
     </div>
