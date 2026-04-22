@@ -1,9 +1,9 @@
 import "../assets/Card.css";
 import defaultImage from "../assets/logo.svg";
 
-const Card = ({ titulo, autor, precio, kind, imagen }) => {
+const Card = ({ titulo, autor, precio, kind, imagen, onClick }) => {
   return (
-    <div className="card">
+    <div className="card" onClick={onClick}>
       <img src={imagen || defaultImage} alt={titulo} className="card-img" />
       <h3>{titulo}</h3>
       <p className="autor">{autor}</p>
@@ -14,4 +14,3 @@ const Card = ({ titulo, autor, precio, kind, imagen }) => {
 };
 
 export default Card;
-
