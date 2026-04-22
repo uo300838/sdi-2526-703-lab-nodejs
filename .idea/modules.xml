@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/react-client/react-client.iml" filepath="$PROJECT_DIR$/react-client/react-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/sdi-2526-703-lab-nodejs.iml" filepath="$PROJECT_DIR$/.idea/sdi-2526-703-lab-nodejs.iml" />
     </modules>
   </component>
