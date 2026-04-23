@@ -1,33 +1,31 @@
 import { useState } from "react";
 import "../assets/Login.css";
+import { login } from "../services/service";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
     setError("");
+    setLoading(true);
 
-    fetch("http://localhost:8081/api/v1.0/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    })
-      .then((res) => res.json())
+    login({ email, password })
       .then((data) => {
-        if (!data.token) {
+        if (!data?.token) {
           setError("Usuario o contrasena invalidos");
-          throw new Error("Invalid login");
+          return;
         }
         localStorage.setItem("token", data.token);
-        onLogin();
+        onLogin?.();
       })
       .catch(() => {
+        setError("No se pudo iniciar sesion");
         localStorage.removeItem("token");
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -46,10 +44,11 @@ const Login = ({ onLogin }) => {
         onChange={(e) => setPassword(e.target.value)}
       />
       {error && <div className="error">{error}</div>}
-      <button onClick={handleLogin}>Aceptar</button>
+      <button onClick={handleLogin} disabled={loading}>
+        {loading ? "Entrando..." : "Aceptar"}
+      </button>
     </div>
   );
 };
 
 export default Login;
-

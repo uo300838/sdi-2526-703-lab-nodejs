@@ -1,28 +1,5 @@
-export const apiFetch = async (url, options = {}) => {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      token: localStorage.getItem("token"),
-      ...(options.headers || {}),
-    },
-  });
+// Backward-compat: el resto del proyecto importaba `apiFetch`.
+// Para el Ejercicio 3 centralizamos todo en `services/service.js`.
+import { apiRequest } from "./service";
 
-  let data;
-  try {
-    data = await res.json();
-  } catch {
-    throw new Error("Respuesta invalida del servidor");
-  }
-
-  if (!res.ok) {
-    if (res.status === 401) {
-      localStorage.removeItem("token");
-      throw new Error("UNAUTHORIZED");
-    }
-    throw new Error(data?.error || "Error en la API");
-  }
-
-  return data;
-};
-
+export const apiFetch = apiRequest;

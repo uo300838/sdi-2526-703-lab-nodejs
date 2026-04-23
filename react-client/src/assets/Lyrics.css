@@ -1,0 +1,203 @@
+.lyricsPage {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.lyricsPage__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.lyricsPage__link {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.lyricsForm {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.lyricsForm__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.lyricsForm__label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.lyricsForm__input {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.lyricsForm__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.lyricsForm__btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #0ea5e9;
+  color: white;
+}
+
+.lyricsForm__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lyricsLoading {
+  margin-top: 12px;
+  opacity: 0.8;
+}
+
+.lyricsError {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #991b1b;
+}
+
+.lyricsResult {
+  margin-top: 14px;
+  background: #0b1220;
+  color: #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.lyricsResult__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lyricsResult__title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.lyricsResult__subtitle {
+  margin: 4px 0 0;
+  opacity: 0.75;
+}
+
+.lyricsResult__actions {
+  display: flex;
+  align-items: flex-start;
+}
+
+.lyricsResult__btn {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.lyricsResult__pre {
+  margin: 0;
+  padding: 14px;
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.lyricsHistory__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.lyricsHistory__btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #ef4444;
+  color: white;
+}
+
+.lyricsHistory__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lyricsEmpty {
+  opacity: 0.8;
+}
+
+.lyricsHistory {
+  display: grid;
+  gap: 10px;
+}
+
+.lyricsHistory__item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 12px 12px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.lyricsHistory__main {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.lyricsHistory__song {
+  font-weight: 900;
+}
+
+.lyricsHistory__artist {
+  opacity: 0.8;
+  font-weight: 700;
+}
+
+.lyricsHistory__meta {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+@media (max-width: 720px) {
+  .lyricsForm__row {
+    grid-template-columns: 1fr;
+  }
+}
+

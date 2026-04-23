@@ -5,10 +5,13 @@ import CardComponent from "../components/CardComponent";
 import AddSongForm from "../views/AddSongForm";
 import "../assets/MainPage.css";
 import SongDetails from "./SongDetails";
+import LyricsSearch from "./LyricsSearch";
+import LyricsHistory from "./LyricsHistory";
 
 const MainPage = () => {
   const [view, setView] = useState("songs");
   const [selectedSongId, setSelectedSongId] = useState(null);
+  const [lyricsPreset, setLyricsPreset] = useState(null);
 
   return (
     <div className="page">
@@ -36,6 +39,21 @@ const MainPage = () => {
           />
         )}
         {view === "add" && <AddSongForm onSongAdded={() => setView("songs")} />}
+        {view === "lyrics" && (
+          <LyricsSearch
+            preset={lyricsPreset}
+            onGoHistory={() => setView("lyricsHistory")}
+          />
+        )}
+        {view === "lyricsHistory" && (
+          <LyricsHistory
+            onBack={() => setView("lyrics")}
+            onPick={(item) => {
+              setLyricsPreset(item);
+              setView("lyrics");
+            }}
+          />
+        )}
       </main>
       <Footer />
     </div>
